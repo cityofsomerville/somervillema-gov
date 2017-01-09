@@ -1,0 +1,17 @@
+name = Somerville Workbench
+core = 7.x
+package = Somerville
+dependencies[] = workbench_moderation
+dependencies[] = workbench_moderation
+dependencies[] = workbench_scheduler
+features[features_api][] = api:2
+features[workbench_moderation_states][] = draft
+features[workbench_moderation_states][] = needs_review
+features[workbench_moderation_states][] = published
+features[workbench_moderation_transitions][] = draft:needs_review
+features[workbench_moderation_transitions][] = needs_review:draft
+features[workbench_moderation_transitions][] = needs_review:published
+features[workbench_scheduler][] = publish_content
+features[workbench_scheduler][] = publish_content_with_end_
+features[workbench_scheduler][] = unpublish_content
+features_exclude[dependencies][workbench_moderation] = workbench_moderation

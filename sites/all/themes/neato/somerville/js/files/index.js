@@ -1,0 +1,2 @@
+var Somerville=Somerville||{};Somerville.Main=function(i,n,e,l){function o(){console.log("in Somerville.Main.init")}return{init:o}}(window,document,jQuery),Somerville.Main.init();
+//# sourceMappingURL=../maps/files/index.js.map

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the NT GSS Search Filter feature.
+ */
+
+include_once 'nt_gss_search_filter.features.inc';

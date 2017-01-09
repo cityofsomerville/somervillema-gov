@@ -1,0 +1,14 @@
+name = NT GSS Search Filter
+core = 7.x
+package = Features
+version = 7.x-1.1
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = nt_gss
+dependencies[] = search
+features[context][] = search-results
+features[ctools][] = context:context:3
+features[features_api][] = api:2
+features[user_permission][] = search content
+project path = sites/all/modules/features

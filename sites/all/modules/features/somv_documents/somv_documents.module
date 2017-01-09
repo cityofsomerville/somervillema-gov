@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Somerville Documents feature.
+ */
+
+include_once 'somv_documents.features.inc';

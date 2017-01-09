@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Somerville Views feature.
+ */
+
+include_once 'somv_views.features.inc';

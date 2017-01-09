@@ -1,0 +1,203 @@
+<?php
+/**
+ * @file
+ * Imports items from GatherContent (http://gathercontent.com/) into Drupal as
+ * nodes.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function gathercontent_menu() {
+  $items = array();
+
+  $path = drupal_get_path('module', 'gathercontent') . '/includes';
+
+  $items['admin/config/content/gathercontent'] = array(
+    'title' => 'GatherContent',
+    'description' => 'Import GatherContent items to your Drupal CMS',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'project.inc',
+    'file path' => $path,
+    'page arguments' => array('gathercontent_project_form'),
+  );
+  $items['admin/config/content/gathercontent/login'] = array(
+    'title' => 'GatherContent',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'login.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+    'page arguments' => array('gathercontent_login_form'),
+  );
+  $items['admin/config/content/gathercontent/items'] = array(
+    'title' => 'GatherContent',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'items.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+    'page arguments' => array('gathercontent_item_form'),
+  );
+  $items['admin/config/content/gathercontent/item_import'] = array(
+    'title' => 'GatherContent',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'item_import.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+    'page arguments' => array('gathercontent_item_import_form'),
+  );
+  $items['admin/config/content/gathercontent/media'] = array(
+    'title' => 'GatherContent',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'media.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+    'page arguments' => array('gathercontent_media_form'),
+  );
+  $items['admin/config/content/gathercontent/finished'] = array(
+    'title' => 'GatherContent',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'finished.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+    'page arguments' => array('gathercontent_finished_form'),
+  );
+  $items['admin/config/content/gathercontent/set_project_id/%'] = array(
+    'page callback' => 'gathercontent_set_project_id',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'project.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(5),
+  );
+  $items['admin/config/content/gathercontent/download_media'] = array(
+    'page callback' => 'gathercontent_ajax_media_download',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'media.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/content/gathercontent/import_item'] = array(
+    'page callback' => 'gathercontent_import_item',
+    'access arguments' => array('administer gathercontent'),
+    'file' => 'item_import.inc',
+    'file path' => $path,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function gathercontent_permission() {
+  return array(
+    'administer gathercontent' => array(
+      'title' => t('Administer GatherContent'),
+      'description' => t('Change settings and import items from GatherContent'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Used to get GatherContentCurl object.
+ */
+function gathercontent_get_obj() {
+  static $obj;
+  if (!isset($obj)) {
+    module_load_include('inc', 'gathercontent', 'includes/functions');
+    module_load_include('inc', 'gathercontent', 'includes/curl');
+    $obj = new GatherContentCurl();
+  }
+  return $obj;
+}
+
+/**
+ * Used to get current step from the URL.
+ */
+function gathercontent_check_step($step = '') {
+  $checks = array(
+    'projects',
+    'login',
+    'items',
+    'item_import',
+    'media',
+    'finished'
+  );
+
+  $step = in_array($step, $checks) ? $step : 'projects';
+
+  $checks = array(
+    'projects' => array(
+      'fields' => array('api_key','api_url'),
+      'prev' => 'login'
+    ),
+    'items' => array(
+      'fields' => array('project_id'),
+      'prev' => 'projects'
+    ),
+    'item_import' => array(
+      'fields' => array('project_id','selected_items'),
+      'prev' => 'projects'
+    ),
+    'media' => array(
+      'fields' => array('project_id','selected_items'),
+      'prev' => 'projects'
+    ),
+  );
+
+  if (isset($checks[$step])) {
+    $error = FALSE;
+    foreach ($checks[$step]['fields'] as $chk) {
+      if (variable_get('gathercontent_' . $chk, '') == '') {
+        $error = TRUE;
+      }
+    }
+    if ($error) {
+      $step = $checks[$step]['prev'];
+      drupal_goto('admin/config/content/gathercontent' . ($step == 'projects' ? '' : '/' . $step));
+      return FALSE;
+    }
+  }
+
+  $path = drupal_get_path('module', 'gathercontent');
+  drupal_add_css($path . '/css/main.css');
+  drupal_add_js($path . '/js/jquery-1.9.1.min.js');
+  drupal_add_js($path . '/js/bootstrap.min.js');
+  drupal_add_js($path . '/js/main.js');
+
+  return TRUE;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function gathercontent_theme() {
+  $path = drupal_get_path('module', 'gathercontent') . '/includes';
+  return array(
+    'gathercontent_item_form' => array(
+      'render element' => 'form',
+      'file' => 'items.inc',
+      'path' => $path,
+    ),
+    'gathercontent_item_import_form' => array(
+      'render element' => 'form',
+      'file' => 'item_import.inc',
+      'path' => $path,
+    ),
+  );
+}
+
+/**
+ * Implements hook_file_delete().
+ */
+function gathercontent_file_delete($file) {
+  db_delete('gathercontent_media')->condition('fid', $file->fid)->execute();
+}

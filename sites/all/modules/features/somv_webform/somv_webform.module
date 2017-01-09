@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Somerville Webform feature.
+ */
+
+include_once 'somv_webform.features.inc';

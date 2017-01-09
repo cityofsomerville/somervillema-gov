@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * Implements hook_block_info()
+ */
+function somv_text_zoom_block_info() {
+  $blocks = array();
+  $blocks['somv_text_zoom'] = array(
+    'info' => t('Site Text Zoom'),
+  );
+  return $blocks;
+}
+/**
+ * Implements hook_block_view()
+ */
+function somv_text_zoom_block_view($delta) {
+  $block = array();
+  switch ($delta) {
+    case 'somv_text_zoom':
+      $block['content'] = theme('somv_text_zoom_block', array());
+      break;
+  }
+  drupal_add_css(drupal_get_path('module', 'somv_text_zoom') . '/assets/css/somv-text-zoom.css');
+  drupal_add_js(drupal_get_path('module', 'somv_text_zoom') . '/assets/js/somv-text-zoom.js');
+  return $block;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function somv_text_zoom_theme() {
+  $theme = array();
+  $theme['somv_text_zoom_block'] = array(
+    'variables' => array(),
+    'template' => 'somv-text-zoom-block',
+  );
+  return $theme;
+}

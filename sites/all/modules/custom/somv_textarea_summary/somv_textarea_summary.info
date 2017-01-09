@@ -1,0 +1,6 @@
+name = Somerville Textarea Summary
+description = Adds WYSIWYG Editor to Textarea with Summary
+core = 7.x
+package = Somerville
+version = 0.1-dev
+dependencies[] = wysiwyg

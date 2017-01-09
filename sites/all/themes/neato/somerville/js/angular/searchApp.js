@@ -1,0 +1,2 @@
+!function(){"use strict";angular.module("cosSearchApp",["cosSearchServices","cosSearchControllers","ngSanitize","ui.bootstrap","ui.select","velirSearchMapper","velirSkip"]).constant("apiEndpoints",{API_BASE:"",SEARCH_ENDPOINT:"js/angular/testJson.json"}).config(["$logProvider",function(e){e.debugEnabled(!1)}]).config(["$compileProvider",function(e){e.debugInfoEnabled(!1)}]).config(["uiSelectConfig",function(e){e.theme="select2"}])}();
+//# sourceMappingURL=../maps/angular/searchApp.js.map

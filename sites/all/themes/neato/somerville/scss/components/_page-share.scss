@@ -1,0 +1,15 @@
+.page-share {
+	float:right;
+	margin-left:50px;
+	margin-top: 10px;
+
+	& > div > div > span {
+    float: right;
+		display:inline-block;
+		vertical-align: middle;
+	}
+
+  .st_sharethis {
+    margin-top: 2px;
+  }
+}

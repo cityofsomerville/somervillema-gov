@@ -1,0 +1,83 @@
+.programs {
+
+	&--articles {
+		@include clearfix;
+	}
+	&--article {
+		.column--50 & {
+			@include media($large-min){
+				@include span-columns(4 of 8);  // two column - of 8 is to reduce margin between elements.
+				@include omega(2n);
+
+				 .article-content--media {
+				 	margin-bottom:1rem;
+					margin-right:0;
+					max-width:100%;
+				}
+			}
+		}
+		.column--75 & {
+			@include media($x-large-min){
+				@include span-columns(4 of 12);  // two column - of 8 is to reduce margin between elements.
+				@include omega(3n);
+
+				 .article-content--media {
+					margin-bottom:1rem;
+					margin-right:0;
+					max-width:100%;
+				}
+			}
+		}
+
+		.home & {
+			display:none;
+
+			&:first-child {
+				display:block;
+			}
+
+			@include media($medium-min){
+				display:block;
+			}
+		}
+	}
+
+	&--image {
+		margin-bottom:1em;
+
+		@include media($large-min){
+			@include span-columns(6);
+			margin-bottom:.75em;
+		}
+	}
+
+	&--description {
+		font-size:.9rem;
+
+		@include media($large-min){
+			margin-bottom:.75em;
+		}		
+	}
+
+	.home & {
+		margin-bottom:35px;
+	}
+}
+
+.org-logo {
+	width:15%;
+	margin:0 1em 0 0;
+	float:left;
+	@include media($x-large){
+		width:25%;
+	}		
+	@include media($small){
+		width:35%;
+	}		
+	img {
+		width:100%;
+	}
+}
+.org-logo + p {
+	overflow: hidden;
+}

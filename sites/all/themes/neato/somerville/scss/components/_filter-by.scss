@@ -1,0 +1,141 @@
+.view-filters, .block-views-exp-calendar-page-2 {
+
+	border-bottom: 1px solid $color-border-fancy-heading;
+	margin-bottom:30px;
+	padding-bottom:20px;
+
+
+  h2.block-title {
+    @extend .heading-decorated;
+  }
+
+	&--filters, .views-exposed-widgets {
+	  margin-bottom: 0;
+		@include media($small-min){
+			@include clearfix;
+		}
+	}
+	&--filter, .views-exposed-widget {
+		margin-bottom:10px;
+		@include media($small-min){
+		  &::not([class~=-button]) {
+  			@include span-columns(4);
+  			margin-bottom:20px;
+			}
+		}
+	}
+	&--label, label {
+		display:block;
+		margin-bottom:.25em;
+
+		@include media($medium-min){
+			margin-bottom:.5em;
+		}
+	}
+	.ui-select-container {
+		font-size:1rem;
+		min-width:100%;
+		width:100%;
+	}
+	&--reset {
+		text-align:right;
+		a {
+			@include link-styles;
+		}
+	}
+	.views-reset-button {
+  	text-align: right;
+  	float: none;
+  	clear: both;
+  	margin: 0;
+  	margin-bottom: 0;
+  	padding: 0;
+  	input.form-submit {
+    	@include link-styles;
+    	background-color: transparent;
+    	padding: 0;
+    	margin: 0;
+    	border-radius: 0;
+  	}
+	}
+}
+.main > .view-calendar {
+
+  .view-content {
+    	margin-top:30px;
+  }
+
+
+	.contact-content {
+		margin-top:1em;
+		margin-bottom:2em;
+	}
+
+	&--articles, .views-row {
+		border-bottom:1px solid $color-border-subtle;
+		margin-bottom:30px;
+    padding-bottom: 30px;
+		&:last-child,
+		&:nth-child(5), &.views-row-last {
+			margin-bottom:0;
+			border:none;
+		}
+
+	}
+	.article-content, .views-row {
+		font-size:1rem;
+    @include clearfix;
+		&--media, .views-field-field-event-preview-image {
+			@include span-columns(5 of 12);
+
+			@include media($medium-min){
+				@include span-columns(4 of 12);
+			}
+		}
+		&--title a {
+			font-size:1.125rem;
+      @extend .cta-secondary;
+			&:after {
+				display:none;
+			}
+		}
+		&--event-time {
+			font-size: 1.15em;
+			font-style:normal;
+			font-weight: 700;
+			margin: 0 0 0.438em 0;
+			.date-display-single .date-display-range {
+  			display: inline;
+			}
+		}
+		&--description, .views-field-body {
+		  overflow: auto;
+			@include media($medium){
+				overflow:visible;
+			}
+			p:last-of-type {
+  			margin-bottom: 0;
+			}
+		}
+	}
+}
+.filter-show-more {
+	font-size:1rem;
+	text-align:right;
+}
+
+#edit-field-city-event-value-wrapper {
+  min-width: 170px;
+  position: relative;
+  margin-left: 6px;
+  .form-item:last-of-type {
+    label {
+      margin: 0;
+      line-height: 1;
+    }
+    input {
+      float: left;
+      margin: 5px 10px 5px 0;
+    }
+  }
+}

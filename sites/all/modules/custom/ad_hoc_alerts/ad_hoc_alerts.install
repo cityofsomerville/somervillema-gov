@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * @file
+ * Installation of variable values for Ad Hoc Alerts module.
+ */
+variable_set('ad_hoc_alerts_text', '');
+variable_set('ad_hoc_alerts_start', '');
+variable_set('ad_hoc_alerts_stop', '');
+variable_set('ad_hoc_alerts_alert_css_class', '');

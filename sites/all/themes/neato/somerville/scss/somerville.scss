@@ -1,0 +1,108 @@
+/*
+ * @file
+ * This file is a custom file that loads all files. Each non-base layer
+ * can be disabled.
+ *
+ * Do not name this file "STARTER.scss". This file should be named
+ * somerville.scss. If you used the drush command to generate this subtheme,
+ * it should be named for you.
+ *
+ * This application file (somerville.scss) is where all the partials are
+ * imported.
+ *
+ * If you have changed the paths where bower components live, please update the mappings below.
+ */
+
+// Make sure the charset is set appropriately
+@charset "UTF-8";
+
+// Import Bourbon.
+@import "../../neato/bower_components/bourbon/app/assets/stylesheets/bourbon";
+
+// Import Neat.
+@import "../../neato/bower_components/neat/app/assets/stylesheets/neat";
+@import "../../neato/bower_components/neat/app/assets/stylesheets/neat-helpers";
+
+// Import Bitters.
+@import "../../neato/bower_components/bitters/app/assets/stylesheets/base";
+
+// Import base styles
+@import "base/neat-grid";
+@import "base/breakpoints";
+@import "base/colors";
+@import "base/fonts";
+@import "base/mixins";
+@import "base/global-variables";
+@import "base/base";
+
+// Vendor
+@import "vendor/bootstrap";
+@import "vendor/normalize"; // uses color and typography variables
+@import "vendor/select2-min";
+@import "vendor/responsive-tables";
+@import "vendor/font-awesome";
+
+// Globals
+@import "globals/columns";
+@import "globals/forms";
+@import "globals/typography";
+@import "globals/footer";
+@import "globals/global-nav";
+@import "globals/layout";
+@import "globals/site-header";
+@import "globals/tables";
+
+// Import Drupal element overrides
+@import "common/breadcrumb";
+@import "common/messages";
+@import "common/tables";
+@import "common/tasks";
+
+//components
+@import "components/add-calendar";
+@import "components/article-content";
+@import "components/article-list";
+@import "components/breadcrumbs";
+@import "components/calendar-content";
+@import "components/calendar-landing";
+@import "components/calendar-picker";
+@import "components/contact";
+@import "components/contact-sidebar";
+@import "components/contact-us";
+@import "components/date-display";
+@import "components/event-type";
+@import "components/feedback";
+@import "components/filter-by";
+@import "components/google-map";
+@import "components/cross-promotion";
+@import "components/highlights";
+@import "components/hours-address";
+@import "components/hp-site-search";
+@import "components/key-services";
+@import "components/latest-news";
+@import "components/link-list";
+@import "components/location-component";
+@import "components/map-link";
+@import "components/media-gallery";
+@import "components/page-banner";
+@import "components/page-search";
+@import "components/page-share";
+@import "components/programs";
+@import "components/related-links";
+@import "components/residents";
+@import "components/rich-text-editor";
+@import "components/share-bar";
+@import "components/site-alert";
+@import "components/search-facets";
+@import "components/search-header";
+@import "components/search-results";
+@import "components/services-311-content";
+@import "components/social-media-feed";
+@import "components/spotlight";
+@import "components/status-bar";
+@import "components/tabbed-content";
+@import "components/ui-select";
+@import "components/upcoming-events";
+
+//print
+@import "print";

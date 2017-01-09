@@ -1,0 +1,209 @@
+:focus {
+		outline:none;
+	}
+
+.tabbed-content {
+
+	&__tabs {
+		border-bottom:1px solid $color-border-subtle;
+		display:none;
+		list-style: none;
+		margin:0;
+		margin-bottom:30px;
+		padding:0;
+		background:$color-border-subtle;
+		
+		border:none \9;
+		display:table \9;
+		width:100% \9;
+		
+		@include media($large-min) {
+			display:flex;
+
+			.no-flexbox & {
+				border:none;
+				display:table;
+				width:100%;
+			}
+		}
+	}
+
+	&__tab {
+		border-left:1px solid $color-border-subtle;
+		border-right:1px solid $color-border-subtle;
+		border-top:5px solid $color-border-subtle;
+		display:inline-block;
+		margin-top:1rem;
+		margin-bottom:1rem;
+		padding:0 .5em;
+		text-align:center;
+		width:20%;
+		width:15% \9;
+		vertical-align:baseline;
+		background:$color-border-subtle;
+
+		&.active + &,
+		&:first-child {
+			border-left-color:transparent;
+		}
+
+		&.active {
+			border:1px solid $color-border-subtle;
+			border-bottom:1px solid $white;
+			border-top:5px solid $color-border-selected;
+			background:#fff;
+			margin: -5px 0;
+			padding-top:1.35rem;
+			padding-bottom:1rem;
+			.tabbed-content__tab-image {
+				background-position: 0px -65px;
+			}
+		}
+
+		&:hover {
+			cursor: pointer;
+
+			.tabbed-content__tab-icon {
+				fill: $color-icon-active;
+			}
+			.tabbed-content__tab-image {
+				background-position: 0px -65px;
+			}
+		}
+		.no-flexbox & {
+			border-bottom:1px solid $color-border-subtle;
+			display:table-cell;
+
+			&.active {
+				border-bottom:1px solid $white;
+			}
+		}
+	h3 {
+  	padding:15px 0 0 0;
+	}
+	}
+
+	// SVG icon
+	&__tab-icon {
+		display:block;
+		fill:$color-icon-inactive;
+		height:65px;
+		width:65px;
+		margin:0 auto 10px auto;
+		transition: fill 0.3s ease;
+
+		.tabbed-content .active & {
+			fill:$color-icon-active;
+		}
+	}
+	&__tab-image {
+    display: block;
+    width: 65px;
+    height: 65px;
+    margin: 0 auto;
+    background-size:65px;
+    @include media($large) {
+      background-size:50px;  
+    }
+  }
+	.article-list {
+		margin-bottom:0;
+	}
+
+	&__panels {
+		ul li {
+		list-style:square;
+		list-style-position: outslide;
+		}
+	}
+
+	&__panel {
+		.accordion-link {
+			height: 50px;
+			border: 1px solid #d5d5d5;
+			padding: 17px 0 40px 60px;
+			color: inherit;
+			@include media($large) {
+  			font-size:1.1rem;
+			}
+
+			&:after {
+				border-color: $color-icon-inactive;
+			}
+			@include media($large-min){
+				display:none;
+			}
+		}
+		.accordion-content {
+			display:none;
+
+			@include media($large-min){
+				display:block;
+			}
+		}
+
+		&.ng-hide {
+			display:block !important;  // overriding Angular tabs.
+
+			@include media($large-min){
+				display:none !important;  // overriding Angular tabs.
+			}
+		}
+		// SVG icon
+		.tabbed-content__tab-icon {
+			float: left;
+			display: block;
+			position: relative;
+			height: 50px;
+			margin: 5px;
+			padding: 0;
+			@include media($large-min){
+				display:none;
+			}
+
+			&:after {
+				content: "";
+				clear: both;
+			}
+		}
+
+		.tabbed-content__tab-image {
+			float: left;
+			display: block;
+			position: relative;
+			width: 65px;
+			height: 65px;
+			margin: 0 auto;
+			@include media($large-min){
+				display:none;
+			}
+			@include media($large) {
+  			width:50px;
+  			height:50px;
+			}
+		}
+
+		&.is-expanded {
+			.tabbed-content__tab-icon {
+				fill: $color-icon-active;
+			}
+			.tabbed-content__tab-image {
+				background-position: 0px -65px;
+        @include media($large) {
+          background-position: 0px -50px;
+          margin-left:10px;
+          margin-top:4px;
+        }
+			}
+			.accordion-link {
+				border-left: 5px solid $color-icon-active;
+			}
+		}
+	}
+	a {
+	  color: #0d7cb7;
+	}
+	a:hover {
+		text-decoration: underline;
+	}
+}

@@ -1,0 +1,177 @@
+.page-header {
+	display: block;
+	overflow: hidden;
+	position: relative;
+
+	.page-banner {
+    // This was transplanted from a <style> tag formerly in page.tpl.php. This default to be overridden often, especially in individual nodes.
+    background-image:url('/sites/default/files/default_images/main-banner.jpg');
+    background-size: cover;
+		background-position: center;
+		transition: all 1s;
+		overflow: hidden;
+    
+		img {
+			width: 100%;
+		}
+
+		@include media($small-min) {
+			min-height:250px;
+			max-height: 400px;
+			display:flex;
+			align-items:center;
+			height:10px; // hack to make centering work with min-height instead of just height
+			padding: 35px 0;
+
+			.no-flexbox & {
+				display:table;
+				width:100%;
+			}
+		}
+
+		@include media($medium-min) {
+			background-color: $black;
+			min-height:250px;
+			padding: 35px 0;
+
+			&.hp-site-search {
+				min-height:400px;
+				position: relative;
+			}
+		}
+		&__inner {
+			width:100%;
+
+			@include media($small-min) {
+				display:flex;
+				flex-direction: row;
+				align-items: center;
+				min-height: 250px;
+				max-height: 400px;
+				height: 10px;
+
+				.no-flexbox & {
+					display:table;
+					width:100%;
+				}
+			}
+			@include media($medium-min) {
+				min-height:250px;
+
+				.hp-site-search &{
+					min-height:400px;
+				  position: relative;
+				}
+			}
+		}
+
+		&__content-area {
+			background-color: rgba($black,.6);
+			display:block;
+			text-align: center;
+			width: 100%;
+
+			//@include media($small-min) {
+				background-color:transparent;
+				background-image: linear-gradient(90deg, transparent -10%, rgba($black,.6) 20%, rgba($black,.75) 50%, rgba($black,.6) 80%, transparent 110%);
+
+				.no-cssgradients & {
+					background-color: rgba($black,.6);
+				}
+			//}
+
+			@include media($medium-min) {
+				padding: 35px 0;
+				//margin: 35px 0;
+
+				.no-flexbox & {
+					display:table-cell;
+					vertical-align: middle;
+				}
+			}
+
+			@include media($large-min) {
+				background-image: linear-gradient(90deg, transparent -10%, rgba($black,.6) 40%, rgba($black,.75) 50%, rgba($black,.6) 60%, transparent 110%);
+				
+			}
+
+			@include media($x-large-min) {
+				// max-width: 1260px;
+				margin: 0 auto;
+			}
+		}
+
+		&__content {
+			@include outer-container;
+			display:inline-block;
+			padding:10px;
+			text-align:center;
+
+			hr {
+				border: 2px solid $color-border-fancy-heading;
+				width:60%;
+				margin: auto;
+			}
+			.no-flexbox & {
+				display:table;
+			}
+
+		}
+		&__title {
+			color:$white;
+			display:inline-block;
+		}
+		&__details {
+			max-width:500px;
+			margin: 0 auto 1em;
+
+			div	{
+				color: $white;
+			}
+		}
+		&__details_date {
+			color: $white;
+		}
+		&__description {
+			clear:both;
+			color:$white;
+			margin-bottom: 1em;
+
+			@include media($small) {
+				display:none;
+			}
+		}
+
+		.field-name-field-header-image,
+		.field-name-field-event-header-image {
+			width: 100%;
+			max-height: 575px;
+			display: flex;
+			align-items: flex-start;
+			height: 1px;
+
+			.field-items {
+				width: 100%;
+				margin-top: -15%;
+			}
+		}
+
+		.field-label {
+			display: none;
+			visibility: hidden;
+		}
+	}
+}
+
+/* style Views in page banners */
+
+.page-banner__content .block-views {
+  max-width: 500px;
+  padding: 16px 0;
+  p {
+    color: $white;
+  }
+  .cta-primary--banner a:hover {
+    color: $color-text-link-banner
+  }
+}

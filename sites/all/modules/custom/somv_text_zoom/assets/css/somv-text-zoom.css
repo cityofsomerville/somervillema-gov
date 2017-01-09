@@ -1,0 +1,19 @@
+html.text-zoom-small {
+  font-size: 100%;
+}
+html.text-zoom-medium {
+  font-size: 110%;
+}
+html.text-zoom-large {
+  font-size: 125%;
+}
+.block-somv-text-zoom-somv-text-zoom .block-title{
+  display: none;
+  visibility: hidden;
+  float: none;
+  clear: both;
+}
+.block-somv-text-zoom-somv-text-zoom.clearfix:after {
+  content: '';
+  display: none;
+}

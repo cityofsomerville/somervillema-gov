@@ -1,0 +1,803 @@
+<?php
+
+function nt_gss_preprocess_page(&$variables) {        
+    // dpm($variables);
+    if (arg(0) == 'search' && arg(1) == 'gss' ) {
+        $keys = arg(2);
+        if (!$keys) {
+          $keys = "";//($_REQUEST['keys'] ? $_REQUEST['keys'] : "");
+        }
+        if ($keys) {
+          $keys  = current(explode(" more:", $keys));
+          $keys  = current(explode(" -filetype:", $keys));
+          $keys  = current(explode(" site:", $keys));
+          
+          $variables['title'] = 'Search Results for "'.$keys.'"';
+        } else {
+          $variables['title'] = 'Search Results';
+        }     
+    }
+
+}
+
+/**
+ * Implements template_preprocess_node.
+ */
+function nt_gss_preprocess_node(&$variables) {
+  $variables['node_content_type'] = $variables['node']->type;
+  $depts_arr = array();
+  if ($variables['node']->type == 'faq') {
+    foreach ($variables['node']->field_faq_department[LANGUAGE_NONE] as $dept) {
+      $depts_arr[] = '<span property="dc:department" content="'.$dept['target_id'].'" class="rdf-meta element-hidden"></span>';
+    }
+  } elseif ($variables['node']->type == 'event') {
+    foreach ($variables['node']->field_event_department[LANGUAGE_NONE] as $dept) {
+      $depts_arr[] = '<span property="dc:department" content="'.$dept['target_id'].'" class="rdf-meta element-hidden"></span>';
+    }
+  } elseif ($variables['node']->type == 'news') {
+    foreach ($variables['node']->field_news_department[LANGUAGE_NONE] as $dept) {
+      $depts_arr[] = '<span property="dc:department" content="'.$dept['target_id'].'" class="rdf-meta element-hidden"></span>';
+    }
+  } elseif ($variables['node']->type == 'programs_initiatives') {
+    foreach ($variables['node']->field_program_department[LANGUAGE_NONE] as $dept) {
+      $depts_arr[] = '<span property="dc:department" content="'.$dept['target_id'].'" class="rdf-meta element-hidden"></span>';
+    }
+    
+  } elseif ($variables['node']->type == 'page' || $variables['node']->type == 'bid_posting' || $variables['node']->type == 'job_posting' || $variables['node']->type == 'organizational_unit') {
+    foreach ($variables['node']->field_department[LANGUAGE_NONE] as $dept) {
+      $depts_arr[] = '<span property="dc:department" content="'.$dept['target_id'].'" class="rdf-meta element-hidden"></span>';
+    }
+  }
+  if (!empty($depts_arr)) {
+    $variables['depts'] = implode('',$depts_arr);
+  } else {
+    $variables['depts'] = implode('',$depts_arr);
+  }
+  // dpm($variables);
+}
+
+
+function nt_gss_block_info() {
+  $blocks['nt_gss_filter_content_type'] = array(
+    'info' => t('Search Filters'),
+    // Default setting.
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ *
+ * Prepares the contents of the block.
+ */
+function nt_gss_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'nt_gss_filter_content_type':
+      $block['subject'] = t('Filter By');
+      $block['title'] = '';
+      $variables = array();
+      //$block['content'] = get_content_type_view();
+      $block['content'] = drupal_get_form('load_content_type_checkboxes_form');
+      break;
+  }
+  return $block;
+}
+
+// function get_content_type_view() {
+//   $block['content'] = drupal_get_form('load_content_type_checkboxes_form');
+//   return $block;
+// }
+
+function load_content_type_checkboxes_form($form, &$form_state) {
+  $sites = explode(',',variable_get('test_new_gss_filter_sites'));
+  
+  $content_types = array_filter(variable_get('new_gss_filter_content_types'));
+  $all_content_types = node_type_get_names();
+
+  $ct_results = array_intersect_key($all_content_types, $content_types);
+  
+  $program_key = array_search('Programs & Initiatives', $ct_results); // returns the first key whose value is 'Programs & Initiatives'
+  if ($program_key) {
+    $ct_results[$program_key] = 'Programs'; // replace 'Programs & Initiatives' with 'Programs'
+  }
+
+  $department_ids = variable_get('new_gss_filter_departments');
+  $department_nodes = node_load_multiple($department_ids);
+  $dept_results = array();
+  foreach($department_nodes as $department_node) {
+    if ($department_node->title == 'Department of Public Works (DPW)') {
+      $dept_results[$department_node->nid] = 'Department of Public Works';
+    } else {
+      $dept_results[$department_node->nid] = $department_node->title;
+    }
+  }
+
+  $form['gss_filter_sites_options_block'] = array(
+    '#title' => t('Search Within'),
+    '#type' => 'select',
+    '#options' => drupal_map_assoc($sites),
+    '#default_value' => nt_get_session('saved_gss_filter_sites'),
+  );
+  $form['gss_filter_pdf_options_block'] = array(
+    '#title' => '',
+    '#type' => 'checkboxes',
+    '#options' => array('filetype:pdf' => "Include PDF's in results"),
+    '#default_value' => nt_get_session('saved_gss_filter_pdf'),
+  );
+  $form['gss_filter_content_type_options_block'] = array(
+    '#title' => 'Content Types',
+    '#type' => 'checkboxes',
+    '#options' => $ct_results,
+    '#default_value' => nt_get_session('saved_gss_filter_content_types'),
+  );
+  $form['gss_filter_department_options_block'] = array(
+    '#title' => 'Departments',
+    '#type' => 'checkboxes',
+    '#options' => $dept_results,
+    '#default_value' => nt_get_session('saved_gss_filter_departments'),
+  );
+  $form['gss_filter_search_field'] = array(
+    '#title' => 'Search field',
+    '#type' => 'hidden',
+    '#default_value' => '',
+  );
+  $form['reset'] = array(
+    '#type' => 'button',
+    '#button_type' => 'reset',
+    '#value' => t('Reset'),
+    '#weight' => 9,
+    '#validate' => array(),
+    // '#attributes' => array(
+    //     'class' => array('btn-danger'),
+    //   ),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Filter'),
+  );
+  $form['#submit'][] = "gss_filter_search_form_submit";
+  $form['#attached']['js'][] = array(
+    'type' => 'file',
+    'data' => drupal_get_path('module', 'nt_gss') . '/scripts/content_type_checkboxes.js',
+  );
+  return $form;
+}
+
+function gss_filter_search_form_submit($form, &$form_state) {
+  $gss_filter_content_type_options = array_filter($form_state['values']['gss_filter_content_type_options_block']);
+  $gss_filter_departments_options = array_filter($form_state['values']['gss_filter_department_options_block']);
+  $gss_filter_pdfs = array_filter($form_state['values']['gss_filter_pdf_options_block']);
+  $gss_filter_sites = $form_state['values']['gss_filter_sites_options_block'];
+//dpm($form_state);
+  $check = _nt_gss_check();
+  if ($check) {
+    $form_id = $form_state['values']['form_id'];
+
+    $keys = $form_state['values']['gss_filter_search_field'];
+
+    $form_state['redirect'] = array('search/gss/' . $keys);
+
+    $_SESSION['saved_gss_filter_content_types'] = $gss_filter_content_type_options;
+    $_SESSION['saved_gss_filter_departments'] = $gss_filter_departments_options;
+    $_SESSION['saved_gss_filter_pdf'] = $gss_filter_pdfs;
+    $_SESSION['saved_gss_filter_sites'] = $gss_filter_sites;
+  }
+}
+/**
+ * Implements hook_theme().
+ */
+function nt_gss_theme($existing, $type, $theme, $path) {
+  return array(
+    'nt_gss_result' => array(
+      'variables' => array('result' => NULL, 'module' => NULL),
+      'file' => 'nt_gss.theme.inc',
+      'template' => 'gss-result',
+    ),
+    'nt_gss_results' => array(
+      'variables' => array('results' => NULL, 'module' => NULL),
+      'file' => 'nt_gss.theme.inc',
+      'template' => 'gss-results',
+    ),
+  );
+}
+/**
+ * Implements hook_search_admin().
+ */
+function nt_gss_search_admin() {
+  return nt_gss_settings();
+}
+/**
+ * Module settings.
+ */
+function nt_gss_settings() {
+  $form = array();
+
+  $form['gss'] = array(
+    '#title' => t('Google Site Search'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['gss']['main'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Main'),
+    '#weight' => -10,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['gss']['main']['nt_gss_global'] = array(
+    '#title' => t('Make Google Site Search global'),
+    '#type' => 'checkbox',
+    '#description' => t('Let Google Site Search take over all search functions on the site.'),
+    '#default_value' => variable_get('nt_gss_global', FALSE),
+  );
+  $form['gss']['main']['nt_gss_api_key'] = array(
+    '#title' => t('Search engine unique ID'),
+    '#type' => 'textfield',
+    '#description' => t('Your Search engine unique ID. If no ID is given, the module will not work and will be disabled.'),
+    '#default_value' => variable_get('nt_gss_api_key', ''),
+  );
+  $form['gss']['main']['nt_gss_base_url'] = array(
+    '#title' => t('Search engine base url'),
+    '#type' => 'textfield',
+    '#description' => t('The base URL to send the query to. Use this to override the default request to google, useful for proxying the request.'),
+    '#default_value' => variable_get('nt_gss_base_url', ''),
+  );
+  $form['gss']['language'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Language'),
+    '#weight' => -9,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['gss']['language']['nt_gss_language'] = array(
+    '#title' => t('Language'),
+    '#type' => 'textfield',
+    '#description' => t('The language to search. Write the language code with two letters.<br />Ex: for "english", input "en"; for "Chinese (Simplified)", input "zh-CN".'),
+    '#default_value' => variable_get('nt_gss_language', FALSE),
+    '#size' => 5,
+    '#max_length' => 5,
+  );
+  $form['gss']['language']['nt_gss_default_language'] = array(
+    '#title' => t('Use current site language'),
+    '#type' => 'checkbox',
+    '#description' => t('This setting will override the custom language above.'),
+    '#default_value' => variable_get('nt_gss_default_language', FALSE),
+  );
+  $form['gss']['miscellaneous'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Miscellaneous'),
+    '#weight' => -8,
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  $form['gss']['miscellaneous']['nt_gss_results_tab'] = array(
+    '#title' => t('Search results tab name'),
+    '#type' => 'textfield',
+    '#maxlength' => 50,
+    '#size' => 60,
+    '#description' => t('Enter a custom name of the tab where search results are displayed (defaults to %google).', array('%google' => t('Google Search'))),
+    '#default_value' => variable_get('nt_gss_results_tab', ''),
+  );
+  $form['gss']['miscellaneous']['nt_gss_page_size'] = array(
+    '#title' => t('Page size'),
+    '#type' => 'textfield',
+    '#description' => t('Number of results to display per page.'),
+    '#default_value' => variable_get('nt_gss_page_size', 20),
+    '#size' => 5,
+    '#max_length' => 5,
+  );
+  $form['gss']['miscellaneous']['nt_gss_pager_size'] = array(
+    '#title' => t('Pager size'),
+    '#type' => 'textfield',
+    '#description' => t('Number of pages to show in the pager. Input ONLY odd numbers like 5, 7 or 9 and NOT 6, 8 or 10, for example.'),
+    '#default_value' => variable_get('nt_gss_pager_size', 19),
+    '#size' => 5,
+    '#max_length' => 5,
+  );
+  $form['gss']['miscellaneous']['nt_gss_labels'] = array(
+    '#title' => t('Show labels'),
+    '#type' => 'checkbox',
+    '#description' => t('Let the user filter the search result by labels. <a href="@link">Click here</a> to read more about search labels.', array('@link' => url('https://developers.google.com/custom-search/docs/ref_prebuiltlabels'))),
+    '#default_value' => variable_get('nt_gss_labels', TRUE),
+  );
+  $form['gss']['miscellaneous']['nt_gss_number_of_results'] = array(
+    '#title' => t('Show number of results'),
+    '#type' => 'checkbox',
+    '#description' => t('Show the line "Shows x to y of approximately x hits" in the top of the search result.'),
+    '#default_value' => variable_get('nt_gss_number_of_results', TRUE),
+  );
+  $form['gss']['miscellaneous']['nt_gss_info'] = array(
+    '#title' => t('Show extra information for each search result'),
+    '#type' => 'checkbox',
+    '#description' => t('Show extra information (content-type, author and date) below each search result.'),
+    '#default_value' => variable_get('nt_gss_info', FALSE),
+  );
+  // Get Content Types
+  $ct_options = node_type_get_names();
+
+  $departments_query = new EntityFieldQuery();
+  $departments_query->entityCondition('entity_type', 'node')->entityCondition('bundle', 'organizational_unit');
+  $department_nodes = $departments_query->execute();
+
+  $department_ids = array();
+  foreach ($department_nodes['node'] as $did) {
+    $department_ids[] = $did->nid;
+  }
+  $all_department_nodes = node_load_multiple($department_ids, array('type' => 'organizational_unit', 'status' =>1));
+  $department_options = array();
+  foreach($all_department_nodes as $department_node) {
+    $department_options[$department_node->nid] = $department_node->title;
+  }
+  // Bulding out the form on the on the GSS Filter Configuration page
+  $form['gss']['nt_gss_filter_content_type_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Content Types',
+    '#collapsible' => TRUE,
+  );
+  $form['gss']['nt_gss_filter_content_type_options']['new_gss_filter_content_types'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Content Type Options'),
+    '#options' => $ct_options,
+    '#description' => t('Select which Content Types to include in the filter options'),
+    '#default_value' => variable_get('new_gss_filter_content_types',array_keys($ct_options)),
+  );
+  $form['gss']['nt_gss_filter_department_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Departments',
+    '#collapsible' => TRUE,
+  );
+  $form['gss']['nt_gss_filter_department_options']['new_gss_filter_departments'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Department Options'),
+    '#options' => $department_options,
+    '#description' => t('Select which Departments to include in the filter options'),
+    '#default_value' => variable_get('new_gss_filter_departments',array_keys($department_options)),
+  );
+  $form['gss']['nt_gss_filter_domain_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Sites to Search',
+    '#collapsible' => TRUE,
+
+  );
+  $form['gss']['nt_gss_filter_domain_options']['test_new_gss_filter_sites'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Domains to Search'),
+    '#description' => t('Enter full URLs. Separate URLs with a comma'),
+    '#default_value' => variable_get('test_new_gss_filter_sites'),
+  );
+  return system_settings_form($form);
+}
+/**
+* Search results page.
+*/
+function nt_gss_search_results($query) {
+  global $language;
+  $site = " site:".nt_get_session('saved_gss_filter_sites');
+  //dpm(nt_get_session('saved_gss_filter_sites'));
+  $include_pdfs = array_filter(nt_get_session('saved_gss_filter_pdf'));
+  $ct_filters = nt_get_session('saved_gss_filter_content_types');
+  $department_filters = nt_get_session('saved_gss_filter_departments');
+  $ct_filter = '';
+  $departments = '';
+  if(!empty($search_filters)) {
+    foreach ($search_filters as $key => $value) {
+      $ct_filter .= ",$value";
+      //dpm($tring);
+    }
+  }
+  foreach ($department_filters as $key => $deptvalue) {
+      $departments .= ",$deptvalue";
+      //dpm($tring);
+  }
+  $ct_filter = '';
+  // $departments = '';
+  if(!empty($ct_filters)) {
+    foreach ($ct_filters as $key => $value) {
+      $ct_filter .= ",$value";
+      //dpm($tring);
+    }
+  }
+  
+  $ct_filter = substr($ct_filter, 1); // remove leading ","
+  $departments = substr($departments, 1);
+  $dept_filter = "more:pagemap:item-department:" . $departments;
+  $filter = "more:pagemap:item-type:" . $ct_filter;
+
+  drupal_add_css(drupal_get_path('module', 'nt_gss') . '/nt_gss.css');
+  // Include dependencies.
+  module_load_include('inc', 'nt_gss', 'includes/GoogleSiteSearch');
+  // Let other modules alter the $query variable.
+  drupal_alter('nt_gss_search_key', $query);
+  // Let other modules add extra parameters.
+  //$extra = array('sort' => 'date');
+  //$extra = NULL;
+  drupal_alter('nt_gss_search_extraparams', $extra);
+  // Make query safe.
+  $query = htmlspecialchars($query, ENT_NOQUOTES, 'UTF-8');
+  // dpm($filter);
+  if (!empty($ct_filter)) {
+    $query .= ' '.$filter;
+  }
+  if (!empty($departments)) {
+    $query .= ' '.$dept_filter;
+  }
+  if (empty($include_pdfs)) {
+    $query .= ' -filetype:pdf';
+  }
+  $query .= $site;
+  //$query .= '&sort=relevance';
+  //dpm($query);
+  //dpm($extra);
+  // Init GoogleSiteSearch object.
+  $gss = new GoogleSiteSearch($query, variable_get('nt_gss_api_key', ''), 20, $extra);
+  // Get current page.
+  $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+  // Init results variable.
+  $results = NULL;
+  // Set the number of results per page.
+  $gss->SetPageSize(variable_get('nt_gss_page_size', 20));
+  // Set the number of pages to show in the pager.
+  $gss->SetPagerSize(variable_get('nt_gss_pager_size', 20));
+  // Set the search language.
+  $default_lang = variable_get('nt_gss_default_language', FALSE);
+  if ($default_lang) {
+    $gss->SetLanguage($language->language);
+  }
+  else {
+    $gss->SetLanguage(variable_get('nt_gss_language', ''));
+  }
+  // Perform search.
+  try {
+    $results = $gss->GetSearchResults($page);
+  }
+  catch(Exception $e) {
+    watchdog('nt_gss', $e, NULL, WATCHDOG_ERROR);
+    drupal_set_message(t('Sorry, the search function is unavailable at this time.'));
+    drupal_exit();
+  }
+  // Get search summary.
+  $total_results = $gss->GetTotalResults();
+  $end_pos = $gss->GetCurrentPage() * $gss->GetPageSize();
+  $start_pos = $end_pos - $gss->GetPageSize() + 1;
+
+  if ($end_pos > $total_results) {
+    $end_pos = $total_results;
+  }
+  // Build output.
+  if (!empty($results)) {
+    $output = array();
+    // Loop results.
+    foreach ($results as $result) {
+      // Just to avoid warnings in the log if not set.
+      $result['thumbnail_url'] = isset($result['thumbnail_url']) ? $result['thumbnail_url'] : '';
+      $output[] = array(
+        'link' => urldecode($result['url']),
+        'title' => $result['title'],
+        'thumbnail_url' => $result['thumbnail_url'],
+        'snippet' => $result['description'],
+      );
+    }
+  }
+  else {
+    $output[] = array(
+      'link' => '',
+      'title' => '',
+      'snippet' => t('No results'),
+    );
+  }
+  // Get searrch head.
+  $output['head'] = $gss->GetSearchHead();
+  // Get pager.
+  $output['pager'] = $gss->GetPager();
+
+  return $output;
+}
+/**
+ * Adds custom submit handler for search form.
+ */
+function nt_gss_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'search_form':
+    case 'search_block_form':
+    case 'search_theme_form':
+      $form['#submit'][] = 'nt_gss_search_form_submit';
+      $form['#attributes']['class'][] = 'gss';
+      break;
+  }
+
+  if ($form_id == 'search_block_form') {
+
+    $sites = explode(',',variable_get('test_new_gss_filter_sites'));
+    $form['search_block_form']['#attributes']['placeholder'] = t('Search');
+    $form['actions']['submit']['#value'] = t('GO');
+    $form['actions']['#weight'] = 2;
+
+    $form['gss_filter_sites_options_block'] = array(
+      '#title' => t('Search in:'),
+      '#type' => 'select',
+      '#options' => drupal_map_assoc($sites),
+      //'#default_value' => $_SESSION['saved_gss_filter_sites'],
+      '#weight' => 50,
+    );
+    $form['gss_filter_pdf_options_block'] = array(
+      '#title' => '',
+      '#type' => 'checkboxes',
+      '#options' => array('filetype:pdf' => "Include PDF's in results"),
+      '#default_value' => nt_get_session('saved_gss_filter_pdf'),
+      '#weight' => 51,
+    );
+    //dpm($form);
+  }
+  if ($form_id == 'search_form') {
+    //dpm($form);
+    $form['basic']['keys']['#title'] = 'Search';
+    $sites = explode(',',variable_get('test_new_gss_filter_sites'));
+    $content_types = array_filter(variable_get('new_gss_filter_content_types'));
+    $all_content_types = node_type_get_names();
+    $ct_results = array_intersect_key($all_content_types, $content_types); 
+
+    $department_ids = variable_get('new_gss_filter_departments');
+    $department_nodes = node_load_multiple($department_ids);
+    $dept_results = array();
+    foreach($department_nodes as $department_node) {
+      $dept_results[$department_node->nid] = $department_node->title;
+    }
+
+    $form['gss_filter_sites_options_block'] = array(
+      '#title' => t('Search Within'),
+      '#type' => 'select',
+      '#options' => drupal_map_assoc($sites),
+      '#default_value' => nt_get_session('saved_gss_filter_sites'),
+    );
+    $form['gss_filter_pdf_options_block'] = array(
+      '#title' => '',
+      '#type' => 'checkboxes',
+      '#options' => array('filetype:pdf' => "Include PDF's in results"),
+      '#default_value' => nt_get_session('saved_gss_filter_pdf'),
+    );
+    $form['gss_filter_content_type_options_block'] = array(
+      '#title' => 'Content Types',
+      '#type' => 'checkboxes',
+      '#options' => $ct_results,
+      '#default_value' => nt_get_session('saved_gss_filter_content_types'),
+    );
+    $form['gss_filter_department_options_block'] = array(
+      '#title' => 'Departments',
+      '#type' => 'checkboxes',
+      '#options' => $dept_results,
+      '#default_value' => nt_get_session('saved_gss_filter_departments'),
+    );
+  }
+}
+/**
+ * Implements hook_search_execute().
+ */
+function nt_gss_search_execute($keys = NULL, $conditions = NULL) {
+  return nt_gss_search_results($keys);
+}
+/**
+ * Implements hook_search_info().
+ */
+function nt_gss_search_info() {
+  return array(
+    'title' => nt_gss_results_tab(),
+    'path' => 'gss',
+    'conditions_callback' => 'nt_gss_conditions_callback',
+  );
+}
+/**
+ * Search conditions callback.
+ */
+function nt_gss_conditions_callback($keys) {
+  $conditions = array();
+  return $conditions;
+}
+/**
+ * Return the Google Site Search tab title, either a setting or a translation.
+ */
+function nt_gss_results_tab() {
+  return ($var = variable_get('nt_gss_results_tab', '')) ? $var : t('Google Search');
+}
+/**
+ * Submit handler.
+ */
+function nt_gss_search_form_submit($form, &$form_state) {
+  $gss_filter_sites = $form_state['values']['gss_filter_sites_options_block'];
+  
+  if ($form['form_id']['#value'] != 'search_block_form') {
+    $gss_filter_content_type_options = array_filter($form_state['values']['gss_filter_content_type_options_block']);
+    $gss_filter_departments_options = array_filter($form_state['values']['gss_filter_department_options_block']);
+    $gss_filter_pdfs = array_filter($form_state['values']['gss_filter_pdf_options_block']);
+    
+  }
+  $check = _nt_gss_check();
+  if ($check) {
+    $form_id = $form_state['values']['form_id'];
+    // Get the search keys, either from search_form or from search_block_form
+    $keys = (isset($form_state['values']['search_block_form'])) ? $form_state['values']['search_block_form'] : $form_state['values']['processed_keys'];
+    $form_state['redirect'] = array('search/gss/' . $keys);
+    $_SESSION['saved_gss_filter_sites'] = $gss_filter_sites;
+    if ($form['form_id']['#value'] != 'search_block_form') {
+      $_SESSION['saved_gss_filter_content_types'] = $gss_filter_content_type_options;
+      $_SESSION['saved_gss_filter_departments'] = $gss_filter_departments_options;
+      $_SESSION['saved_gss_filter_pdf'] = $gss_filter_pdfs;
+      
+    }
+  }
+}
+/**
+ * Implements hook_search_page().
+ */
+function nt_gss_search_page($results) {
+  $output['#theme'] = 'nt_gss_results';
+  $output['#results'] = $results;
+  return $output;
+}
+/**
+ * Check if Google Site Search can run.
+ */
+function _nt_gss_check() {
+  $nt_gss_global = variable_get('nt_gss_global', FALSE);
+  if (!$nt_gss_global) {
+    return FALSE;
+  }
+  $nt_gss_api_key = variable_get('nt_gss_api_key', FALSE);
+  if (!$nt_gss_api_key) {
+    $search_active_modules = variable_get('search_active_modules', array('node', 'user'));
+    // Disable Google Site Search if no Search engine unique ID is given.
+    unset($search_active_modules['nt_gss']);
+    variable_set('search_active_modules', $search_active_modules);
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Implements hook_init().
+ */
+function nt_gss_init() {
+  $settings['gss']['key'] = variable_get('nt_gss_api_key', '');
+  drupal_add_js($settings, 'setting');
+  drupal_add_library('system', 'ui.autocomplete');
+}
+
+/*
+ * Get saved filter session data, return zero if session does not exist
+ */
+function nt_get_session($name) {	
+	if (isset($_SESSION[$name]))
+		return $_SESSION[$name];
+	else
+		return array(0);
+}
+
+
+/**
+* Search results page.
+*/
+function nt_gss_date_search_results($query) {
+  global $language;
+  $site = " site:".nt_get_session('saved_gss_filter_sites');
+  //dpm(nt_get_session('saved_gss_filter_sites'));
+  $include_pdfs = array_filter(nt_get_session('saved_gss_filter_pdf'));
+  $ct_filters = nt_get_session('saved_gss_filter_content_types');
+  $department_filters = nt_get_session('saved_gss_filter_departments');
+  $ct_filter = '';
+  $departments = '';
+  if(!empty($search_filters)) {
+    foreach ($search_filters as $key => $value) {
+      $ct_filter .= ",$value";
+      //dpm($tring);
+    }
+  }
+  foreach ($department_filters as $key => $deptvalue) {
+      $departments .= ",$deptvalue";
+      //dpm($tring);
+  }
+  $ct_filter = '';
+  // $departments = '';
+  if(!empty($ct_filters)) {
+    foreach ($ct_filters as $key => $value) {
+      $ct_filter .= ",$value";
+      //dpm($tring);
+    }
+  }
+  
+  $ct_filter = substr($ct_filter, 1); // remove leading ","
+  $departments = substr($departments, 1);
+  $dept_filter = "more:pagemap:item-department:" . $departments;
+  $filter = "more:pagemap:item-type:" . $ct_filter;
+
+  drupal_add_css(drupal_get_path('module', 'nt_gss') . '/nt_gss.css');
+  // Include dependencies.
+  module_load_include('inc', 'nt_gss', 'includes/GoogleSiteSearch');
+  // Let other modules alter the $query variable.
+  drupal_alter('nt_gss_search_key', $query);
+  // Let other modules add extra parameters.
+  //$extra = array('sort' => 'date');
+  //$extra = NULL;
+  drupal_alter('nt_gss_search_extraparams', $extra);
+  // Make query safe.
+  $query = htmlspecialchars($query, ENT_NOQUOTES, 'UTF-8');
+  // dpm($filter);
+  if (!empty($ct_filter)) {
+    $query .= ' '.$filter;
+  }
+  if (!empty($departments)) {
+    $query .= ' '.$dept_filter;
+  }
+  if (empty($include_pdfs)) {
+    $query .= ' -filetype:pdf';
+  }
+  $query .= $site;
+  //$query .= '&sort=relevance';
+  //dpm($query);
+  //dpm($extra);
+  // Init GoogleSiteSearch object.
+  $gss = new GoogleSiteSearch($query, variable_get('nt_gss_api_key', ''), 20, $extra);
+  // Get current page.
+  $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+  // Init results variable.
+  $results = NULL;
+  // Set the number of results per page.
+  $gss->SetPageSize(variable_get('nt_gss_page_size', 20));
+  // Set the number of pages to show in the pager.
+  $gss->SetPagerSize(variable_get('nt_gss_pager_size', 20));
+  // Set the search language.
+  $default_lang = variable_get('nt_gss_default_language', FALSE);
+  if ($default_lang) {
+    $gss->SetLanguage($language->language);
+  }
+  else {
+    $gss->SetLanguage(variable_get('nt_gss_language', ''));
+  }
+  // Perform search.
+  try {
+    $results = $gss->GetSearchResults($page);
+  }
+  catch(Exception $e) {
+    watchdog('nt_gss', $e, NULL, WATCHDOG_ERROR);
+    drupal_set_message(t('Sorry, the search function is unavailable at this time.'));
+    drupal_exit();
+  }
+  // Get search summary.
+  $total_results = $gss->GetTotalResults();
+  $end_pos = $gss->GetCurrentPage() * $gss->GetPageSize();
+  $start_pos = $end_pos - $gss->GetPageSize() + 1;
+
+  if ($end_pos > $total_results) {
+    $end_pos = $total_results;
+  }
+  // Build output.
+  if (!empty($results)) {
+    $output = array();
+    // Loop results.
+    foreach ($results as $result) {
+      // Just to avoid warnings in the log if not set.
+      $result['thumbnail_url'] = isset($result['thumbnail_url']) ? $result['thumbnail_url'] : '';
+      $output[] = array(
+        'link' => urldecode($result['url']),
+        'title' => $result['title'],
+        'thumbnail_url' => $result['thumbnail_url'],
+        'snippet' => $result['description'],
+      );
+    }
+  }
+  else {
+    $output[] = array(
+      'link' => '',
+      'title' => '',
+      'snippet' => t('No results'),
+    );
+  }
+  // Get searrch head.
+  $output['head'] = $gss->GetSearchHead();
+  // Get pager.
+  $output['pager'] = $gss->GetPager();
+
+  return $output;
+}

@@ -1,0 +1,5 @@
+name = Somerville Administration Module
+description = Administration Updates
+core = 7.x
+package = Somerville
+version = 0.1-dev

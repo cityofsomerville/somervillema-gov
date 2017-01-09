@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter()
+ */
+function somv_form_alters_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#id'] == 'views-exposed-form-calendar-page-2') {
+    $form['#after_build'][] = '_sort_alphabetically';
+  }
+  if(isset($form['field_city_event_value'])) {
+    $form['field_city_event_value']['#options']['All'] = "-- All Sponsors --";
+    $form['field_city_event_value']['#options']['1'] = "-- Official City Events Only --";
+    $form['field_city_event_value']['#default_value'] = '1';
+  }
+  // Fixes select2's bug with Views auto submit
+  drupal_add_js('(function($) {$(document).ready(function()
+  {var $form = $("form#views-exposed-form-calendar-page-2");
+    $form.find("select.form-select").on("change", function() {
+      $form.submit();
+    });
+  });})(jQuery)', array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+}
+
+/**
+ * hook_views_pre_view
+ * @param type $view
+ * @param type $display_id
+ * @param type $args
+ */
+function somv_form_alters_views_pre_view(&$view, &$display_id, &$args) {
+  if ($view->name == 'calendar') {
+    $filters = $view->display_handler->get_option('filters');
+    $params = drupal_get_query_parameters();
+
+    if (empty($params)) {
+      $view->set_exposed_input(array('field_city_event_value' => '1'));
+    }
+
+  }
+  return;
+}
+
+function _sort_alphabetically($form, $form_state) {
+  foreach ($form_state['view']->filter as $field => $filter) {
+    if ($filter->options['exposed']  && $filter->options['id'] == 'field_event_department_target_id' ) {
+      $field_id = $form['#info']["filter-field_event_department_target_id"]['value'];
+      asort($form[$field_id]['#options']);
+    }
+  }
+  return $form;
+}

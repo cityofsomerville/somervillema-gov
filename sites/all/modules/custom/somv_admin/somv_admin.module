@@ -1,0 +1,89 @@
+<?php
+/**
+ * @file
+ * Provides updates to Somerville Administration pages
+ */
+
+function somv_admin_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Do we have permission to see the tab?
+  if (user_access('create event_doc content') && isset($router_item['page_arguments']['0'])) {
+    // Add a tab linking to node/add/event_doc on event pages.
+    if ($router_item['page_arguments']['0'] == 'event'
+        || isset($router_item['page_arguments']['0']->type) && $router_item['page_arguments']['0']->type == 'event') {
+      // Load the current node
+      $node = node_load(arg(1));
+
+      $data['tabs'][0]['output'][] = array(
+        '#theme' => 'menu_local_task',
+        '#link' => array(
+          'title' => t('Add Event Document'),
+          'href' => 'node/add/event-doc',
+          // We need to pass in the node title and the nid as an argument.
+          // This is looked for when loading the node/add/event-doc page
+          // and is used to pre-populate the Event field.
+          'localized_options' => array(
+            'query' => array(
+              'event' => $node->title . ' (' . arg(1) . ')'
+            ),
+          ),
+        )
+      );
+    }
+  }
+}
+
+function somv_admin_form_official_node_form_alter(&$form, $form_id) {
+  //dpm($form);
+  $form['#attached']['js'] = array(
+    drupal_add_js(drupal_get_path('module', 'somv_admin') . '/somv_admin.js'),
+  );
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter()
+ * Hack to modify the "Promoted To Homepage"
+ */
+function somv_admin_form_news_node_form_alter(&$form, $form_state) {
+  $node = $form['#node'];
+  // Check if this node type is enabled for mailfish
+  // and that the user has access to the per-node settings
+  if (user_access('create content')) {
+    // dpm($form);
+    // Add a new fieldset with a checkbox for showing in full list.
+    $form['options']['promote']['#title'] = t('Show in the "View All" listing');
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter()
+ * Pre-populate the Event field if the ?event= query is present
+ */
+function somv_admin_form_event_doc_node_form_alter(&$form, $form_state) {
+  $params = drupal_get_query_parameters();
+  if (!empty($params) && isset($params['event'])) {
+    $form['field_event_doc_event']['und']['0']['target_id']['#default_value'] = $params['event'];
+  }
+}
+
+function somv_admin_form_alter(&$form, $form_state) {
+  if (!empty($form['#node_edit_form'])) {
+    foreach($form as $key => $field) {
+      if ($key == 'author' || $key == 'comment_settings'
+        && is_array($field)
+        && $field['#type']=='fieldset'
+        && $field['#collapsible']) {
+        // unset($form[$key]);          // ADDITION/EDIT: '#access' below is a better/working approach
+        $form[$key]['#access'] = FALSE; // than unset if required fields are in the fieldset :)
+      }
+    }
+  }
+}
+
+function somv_admin_menu_alter(&$items) {
+  // Change node clone menu item to a tab instead of an action
+  if(isset($items['node/%node/clone/%clone_token'])) {
+    $items['node/%node/clone/%clone_token']['type'] = MENU_LOCAL_TASK;
+  } else {
+    $items['node/%node/clone']['type'] = MENU_LOCAL_TASK;
+  }
+}

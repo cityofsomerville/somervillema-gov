@@ -1,0 +1,5 @@
+name = Somerville Text Zoom
+description = Creates a block with text zoom controls
+core = 7.x
+package = Somerville
+dependencies[] = block

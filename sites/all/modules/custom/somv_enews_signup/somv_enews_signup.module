@@ -1,0 +1,171 @@
+<?php
+
+/**
+ * @file
+ * Provides updates to Somerville eNews form creation
+ */
+
+function somv_enews_signup_form($form, $form_state) {
+  $form['#action'] = 'https://visitor2.constantcontact.com/api/signup';
+  $form['#attributes'] = array(
+    'data-id' => 'embedded_signup:form',
+    'class' => 'ctct-custom-form Form',
+    'name' => 'embedded_signup',
+  );
+  $form['ca'] = array(
+    '#type' => 'hidden',
+    '#attributes' => array(
+      'data-id' => 'ca:input',
+      'name' => 'ca',
+      'value' => '1c518d09-83c4-444f-ade4-0c044e1529fa',
+    ),
+  );
+  $form['list'] = array(
+    '#type' => 'hidden',
+    '#attributes' => array(
+      'data-id' => 'list:input',
+      'value' => '1',
+    ),
+  );
+  $form['source'] = array(
+    '#type' => 'hidden',
+    '#attributes' => array(
+      'data-id' => 'source:input',
+      'name' => 'source',
+      'value' => 'EFD',
+    ),
+  );
+  $form['required'] = array(
+    '#type' => 'hidden',
+    '#attributes' => array(
+      'data-id' => 'required:input',
+      'value' => 'list,email',
+    ),
+  );
+  $form['url'] = array(
+    '#type' => 'hidden',
+    '#attributes' => array(
+      'data-id' => 'url:input',
+      'value' => '',
+    ),
+  );
+  $form['email'] = array(
+    '#type' => 'textfield',
+    '#size' => 30,
+    '#attributes' =>array(
+      'placeholder' => 'you@emailprovider.com',
+    ),
+    '#prefix' => '<div data-id="Email Address:p" class="contact-content--input-field" ><label data-id="Email Address:label" data-name="email" class="ctct-form-required contact-content--input-label">Enter your email</label>',
+    '#suffix' => '</div>',
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Subscribe'),
+    '#attributes' =>array(
+      'data-enabled' => 'enabled'
+    )
+  );
+  // $form['email']['#attributes']['class'][] = 'contact-content__input-field';
+  $form['submit']['#attributes']['class'][] = 'Button ctct-button Button--block Button-secondary';
+
+  $form['email']['#attached']['js'] = array(
+    drupal_get_path('module', 'somv_enews_signup') . '/somv_enews_signup.js',
+  );
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'somv_enews_signup') . '/signup-form.js',
+  );
+
+  return $form;
+}
+
+/**
+ * Implements hook_block_info()
+ */
+function somv_enews_signup_block_info() {
+  $blocks = array();
+  $blocks['somv_enews_signup'] = array(
+    'info' => t('eNews Constant Contact Signup Form'),
+  );
+  $blocks['somv_enews_signup_with_body'] = array(
+    'info' => t('eNews Constant Contact Signup Form With Description'),
+  );
+  $blocks['somv_enews_signup_footer'] = array(
+    'info' => t('eNews Footer Constant Contact Signup Form'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view()
+ */
+function somv_enews_signup_block_view($delta) {
+  $block = array();
+  switch ($delta) {
+    case 'somv_enews_signup':
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $form = drupal_get_form('somv_enews_signup_form');
+        // $block['subject'] = t('eNews Signup');
+        $block['content'] = theme('somv_enews_signup_block', array(
+          'form' => drupal_render($form),
+          'message' => t("Get City eNews - It's great and it's free!"),
+          )
+        );
+      }
+      break;
+    case 'somv_enews_signup_with_body':
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $form = drupal_get_form('somv_enews_signup_form');
+        // $block['subject'] = t('eNews Signup');
+        $block['content'] = theme('somv_enews_signup_with_body_block', array(
+          'form' => drupal_render($form),
+          'body' => t("Once a week, you'll receive a brief update on City events, news, services, and opportunities to get involved - as well as invitations to community meetings with Mayor Curtatone and your aldermen."),
+          'message' => t("Get City eNews - It's great and it's free!"),
+          )
+        );
+      }
+      break;
+    case 'somv_enews_signup_footer':
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $form = drupal_get_form('somv_enews_signup_form');
+        // $block['subject'] = t('eNews Signup');
+        $block['content'] = theme('somv_enews_signup_footer_block', array(
+          'form' => drupal_render($form),
+          'message' => t("Sign up for City eNews"),
+          )
+        );
+      }
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function somv_enews_signup_theme() {
+  $theme = array();
+  $theme['somv_enews_signup_block'] = array(
+    'variables' => array(
+      'form' => '',
+      'message' => '',
+    ),
+    'template' => 'somv-enews-signup-block',
+  );
+  $theme['somv_enews_signup_with_body_block'] = array(
+    'variables' => array(
+      'form' => '',
+      'body' => '',
+      'message' => '',
+    ),
+    'template' => 'somv-enews-signup-with-body-block',
+  );
+  $theme['somv_enews_signup_footer_block'] = array(
+    'variables' => array(
+      'form' => '',
+      'message' => '',
+    ),
+    'template' => 'somv-enews-signup-footer-block',
+  );
+  return $theme;
+}

@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * @file
+ * Provides updates to Somerville Resident Address content creation
+ */
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter()
+ * Hide the Title field on Resident Address node form
+ * and prepopulate 
+ */
+function somv_resident_address_form_resident_address_node_form_alter(&$form, $form_id) {
+   $form['#attached']['js'] = array(
+    drupal_get_path('module', 'somv_resident_address') . '/somv_resident_address_admin.js' => array(
+      'type' => 'file',
+    ),
+  );
+}
+
+ 
+function somv_resident_address_node_presave($node) {
+  if ($node->type =='resident_address' && $node->is_new) {
+    $street_no = $node->field_resident_street_number['und']['0']['value'];
+    $street_name = $node->field_resident_street_name['und']['0']['value'];
+    $street_suffix = $node->field_resident_street_suffix['und']['0']['value'];
+    $node->title = $street_no . ' ' . $street_name . ' ' . $street_suffix;
+  }
+}
+
+function somv_resident_address_form($form, $form_state) {
+  $form['input'] = array(
+    '#type' => 'textfield',
+    '#size' => 60,
+    '#default_value' => t('93 Highland Avenue'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Find'),
+  );
+
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'somv_resident_address') . '/somv_resident_address.js' => array(
+      'type' => 'file',
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Implements hook_block_info()
+ */
+function somv_resident_address_block_info() {
+  $blocks = array();
+  $blocks['somv_resident_address_search'] = array(
+    'info' => t('Address Information Lookup'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view()
+ */
+function somv_resident_address_block_view($delta) {
+  $block = array();
+  switch ($delta) {
+    case 'somv_resident_address_search':
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $form = drupal_get_form('somv_resident_address_form');
+        $block['subject'] = t('Resident Address Search');
+        $block['content'] = theme('somv_resident_address_block', array(
+          'form' => drupal_render($form),
+          'message' => t('Please enter your address below to find your polling place, trash pickup day, street sweeping schedule, ward & precinct, and elected officials.'),
+          )
+        );
+      }
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function somv_resident_address_theme() {
+  $theme = array();
+  $theme['somv_resident_address_block'] = array(
+    'variables' => array(
+      'form' => '',
+      'message' => '',
+    ),
+    'template' => 'somv-resident-address-block',
+  );
+  return $theme;
+}

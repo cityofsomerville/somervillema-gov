@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Somerville Context feature.
+ */
+
+include_once 'somv_context.features.inc';

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Somerville Location feature.
+ */
+
+include_once 'somv_location.features.inc';

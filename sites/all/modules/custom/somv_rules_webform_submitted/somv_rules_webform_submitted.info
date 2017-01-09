@@ -1,0 +1,7 @@
+name = Rules Webform Submitted
+description = "Rules module condition to test if webform is submitted"
+package = Somerville
+files[] = somv_rules_webform_submitted.rules.inc
+dependencies[] = webform (>=7.x-3.x)
+dependencies[] = rules
+core = 7.x

@@ -1,0 +1,12 @@
+name = Net Tango Google Site Search
+description = Integration with Google Site Search and Result Filtering.
+core = 7.x
+
+dependencies[] = search
+files[] = nt_gss.module
+files[] = nt_gss.theme.inc
+scripts[] = scripts/autocomplete.js
+stylesheets[all][] = nt_gss.css
+
+version = "7.x-2.0"
+

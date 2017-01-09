@@ -1,0 +1,6 @@
+name = Somerville eNews Signup
+description = Signup form for Constant Contact eNewsletter
+core = 7.x
+package = Somerville
+version = 0.1-dev
+dependencies[] = block

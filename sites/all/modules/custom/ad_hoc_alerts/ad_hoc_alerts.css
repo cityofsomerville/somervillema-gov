@@ -1,0 +1,29 @@
+#ad-hoc-alert {
+  /*background: #358CD3;*/
+  padding: 0;
+  color: #F4F4F4;
+  position: relative;
+  height: 0px;
+}
+
+#ad-hoc-alert.adhoc-alerts-open {
+  height: 100%;
+  padding: 20px 40px 25px 25px;
+}
+
+.adhoc-alerts-close {
+  display: block;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+}
+
+
+#ad-hoc-alert a {
+  text-decoration: underline;
+}
+
+#ad-hoc-alert a:hover {
+  color:#D6D6D6;
+}

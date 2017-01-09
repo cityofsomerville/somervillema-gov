@@ -1,0 +1,4 @@
+name = Somerville Form Alters
+description = Alters forms
+core = 7.x
+package = Somerville

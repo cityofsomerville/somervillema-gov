@@ -1,0 +1,2 @@
+!function(){"use strict";var e,c=function(){this.updateSelectedFacets=function(e,c){angular.forEach(e,function(e,t){e.selected=c.indexOf(e.value)!=-1})},this.toggleFacetItem=function(e,c){var t;"object"==typeof e?$log.error("Facet item should be a value, not the whole object"):(t=c.indexOf(e),t>-1?c.splice(t,1):c.push(e))},this.clearFacet=function(e){e=[]}};try{e=angular.module("cosSearchServices")}catch(t){e=angular.module("cosSearchServices",[])}e.service("cosFacetService",[c])}();
+//# sourceMappingURL=../../maps/angular/services/cosFacetService.js.map

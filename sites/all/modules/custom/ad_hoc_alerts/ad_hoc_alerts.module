@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * @file
+ * Permission, Menu, and Init functions for the Ad Hoc Alerts module.
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function ad_hoc_alerts_permission() {
+  return array(
+    'administer alerts' => array(
+      'title' => t('Administer Ad Hoc Alerts'),
+      'description' => t('Administer Ad Hoc Alerts'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ *
+ * A simple example which defines a page callback and a menu entry.
+ * Menu items are defined by placing them in an $items array. The array key
+ * (in this case 'menu_example') is the path that defines the menu router
+ * entry, so the page will be accessible from the URL.
+ *
+ * example.com/examples/menu_example.
+ */
+function ad_hoc_alerts_menu() {
+  $items = array();
+
+  $items['admin/config/user-interface/alerts'] = array(
+    'title' => 'Ad Hoc Alerts',
+    'description' => 'A way for staff to post general alerts to site visitors.',
+    'page callback' => 'drupal_get_form',
+    // An array of arguments to pass to the page callback function.
+    // Integer values pass the corresponding URL component.
+    'page arguments' => array('ad_hoc_alerts_admin'),
+    // One of MENU_NORMAL_ITEM / MENU_CALLBACK / MENU_SUGGESTED_ITEM /
+    // MENU_LOCAL_TASK / MENU_DEFAULT_LOCAL_TASK
+    // 'type' => MENU_NORMAL_ITEM,
+    'file' => 'ad_hoc_alerts.admin.inc',
+    // Menu to place this item in.
+    'menu_name' => 'management',
+    'access arguments' => array('administer alerts'),
+  );
+
+  $items['ajax/ad-hoc-alert/load/view'] = array(
+    'title' => 'Special Alerts',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'ad_hoc_alerts_load_alerts_content',
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+/**
+ * Loads ad hoc alerts markup.
+ *
+ * @return mixed
+ *               returns rendered view or FALSE
+ */
+function ad_hoc_alerts_load_alerts_content() {
+  $start = variable_get('ad_hoc_alerts_start_date');
+  $end = variable_get('ad_hoc_alerts_end_date');
+  $classes = variable_get('ad_hoc_alerts_alert_css_class');
+
+  if (is_array($start)) {
+    $start_time = mktime(0, 0, 0, $start['month'], $start['day'], $start['year']);
+  } else {
+    return;
+  }
+  if (is_array($end)) {
+    $end_time = mktime(23, 59, 59, $end['month'], $end['day'], $end['year']);
+  } else {
+    return;
+  }
+  $now = time();
+
+  if (($start_time <= $now) && ($end_time >= $now)) {
+    $alert = variable_get('ad_hoc_alerts_alert_text');
+    $alert = '<div class="messages ad-hoc-alert site-alert ' . $classes . '" id="ad-hoc-alert"><span class="adhoc-alerts-close"><i class="fa fa-times"></i></span>' . t($alert) . '</div>';
+    // echo $alert;
+    // exit(0);
+    $result = array(
+      '#markup' => $alert,
+    );
+
+    return $result;
+  } else {
+    watchdog('ad_hoc_alerts', 'Resetting stored variables');
+    variable_set('ad_hoc_alerts_start_date', '');
+    variable_set('ad_hoc_alerts_end_date', '');
+    variable_set('ad_hoc_alerts_end_date', '');
+
+    return false;
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function ad_hoc_alerts_block_info() {
+  $blocks = array();
+  $blocks['ad_hoc_alert_block'] = array(
+    'info' => t('Ad Hoc Alerts Block'),
+    'region' => 'header',
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ *
+ * This hook generates the contents of the blocks themselves.
+ */
+function ad_hoc_alerts_block_view($delta = '') {
+  $block = array();
+  // The $delta parameter tells us which block is being requested.
+  switch ($delta) {
+
+    case 'ad_hoc_alert_block':
+      $block['content'] = ad_hoc_alerts_load_alerts_content();
+      break;
+  }
+
+  return $block;
+}

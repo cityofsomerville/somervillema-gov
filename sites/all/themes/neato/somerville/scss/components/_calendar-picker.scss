@@ -1,0 +1,104 @@
+.not-calendar-picker {
+	@include media($small-to-large){
+		@include span-columns(6);
+	}
+}
+
+#block-views-calendar-block-1 {
+
+	@include media($small-to-large){
+		@include span-columns(6);
+	}
+
+  .date-heading {
+    h3 {
+      @extend h5;
+    }
+  }
+  .date-nav {
+    padding: 5px 0;
+    margin: 14px 0 6px 0;
+  }
+  
+  ul.pager {
+    margin: 0;
+    li {
+      background: transparent;
+      padding: 0;
+      margin: 0;
+      top: 8px;
+      a {
+        text-indent: -1000em;
+  			border-right: 2px solid $color-text-link-secondary;
+  			border-top: 2px solid $color-text-link-secondary;
+  			display:inline-block;
+  			height: rem(10);
+  			right: rem(28);
+  			transform: rotate(45deg);
+  			width: rem(10);
+  			color: #ffffff; // hack to hide the default pager characters
+  			&:after {
+  				display:none;
+  			}
+			}
+			&.date-prev a {
+  			transform: rotate(225deg);
+			}
+    }
+  } 
+  
+  table.mini {
+    max-width:300px;
+    thead {
+      border-bottom: 1px solid $color-border-fancy-heading;
+      tr th {
+        background: transparent;
+        border: none;
+        font-size: 80%;
+      }
+    }
+  }
+  
+  .calendar-calendar .mini-day-off, .calendar-calendar .mini-day-on {
+    text-align: center;
+    a {
+      display: block;
+    }
+    &.active a {
+      background-color: $color-bg-button; 
+			border: none;
+			box-shadow: none;
+			color: $white;
+			outline:none;
+			text-decoration: none;
+			&:hover {
+				background-color: tint($color-bg-button,20%); 
+				color: $white;
+			}
+    }
+  }
+  
+  .calendar-calendar .mini-day-on a:hover {
+		 background-color: $color-bg-input; 
+		 border-color: $color-border-subtle; 
+		 color: #777;
+  }
+  
+  .calendar-calendar tr td.today, .calendar-calendar tr.odd td.today, .calendar-calendar tr.even td.today {
+	   background-color: $color-bg-input; 
+	 	 border-color: $color-border-subtle; 
+  }
+  
+
+  .view-footer {
+    margin: 4px 6px;
+    a {
+      text-decoration: underline;
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+  
+
+}

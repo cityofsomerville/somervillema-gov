@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Somerville PathAuto Configuration feature.
+ */
+
+include_once 'somv_pathauto.features.inc';

@@ -1,0 +1,29 @@
+.dcsns {
+  background:#ccc;
+  color:#444;
+  .stream li {
+    font-size:0.9rem;
+    line-height:0.1rem;
+    background:#fff;
+    color:#444;
+      a {
+	    color:#38AEAE;
+      }
+      .section-intro {
+	    margin:1.5rem 0 0 0;
+	    padding:1rem 0 1rem 2.5rem;
+      }
+      .section-intro span a {
+	      text-decoration: none;
+      }
+       .section-intro span a:hover {
+	      text-decoration: underline;
+      }
+      .section-intro a {
+	    color:#fff;
+      }
+      .twitter-user a strong {
+	      color:#444;
+      }
+  }
+}

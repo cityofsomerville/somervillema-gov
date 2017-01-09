@@ -1,0 +1,73 @@
+/*
+#block-block-2 {
+  
+  label.page-search__input-wrapper {
+    margin-bottom: 0;
+    .page-search__input {
+      margin-bottom: 0;
+   		background-color: $color-bg-input;
+  		border:none;
+  		border-radius:0;
+  		color:$color-text-input;
+   		display:inline-block;
+   		float:left;
+   		height:2em;
+   		padding:0 .25em 0 .5em;
+    }
+  }
+  .page-search__icon {
+    background-color: #e8e8e8;
+    display: inline-block;
+    fill: #397f34;
+    float: left;
+    height: 2em;
+    margin-right: 10px;
+    padding-right: 10px;
+    width: 30px;
+  }
+  
+}
+*/
+
+.page-events .main-content .column--25 {
+  .block {
+    max-width: 260px;
+  }
+  .page-search__input  {
+    max-width: 150px;
+  }
+  
+  .page-search__button {
+    vertical-align: top;
+  }
+  
+}
+.page-calendar,
+.page-calendar-search {
+  #edit-reset {
+    background-color: inherit;
+  }
+  .sidebar {
+	margin: 0 2em 0 0 !important;
+    width:22% !important;
+    .heading-decorated__inner {
+      display: none;
+    }
+  }
+  #block-bean-add-your-event {
+    margin-bottom: 0;
+  }
+  .block-views-exp-calendar-page-2,
+  .block-bean-add-your-event {
+    @include media($large) {
+      display: none;
+    }
+  }
+  #block-views-calendar-block-1:last-child {
+   @include media($large) {
+      margin: 0 auto 20px;
+      margin-right: auto;
+      float: none;
+    } 
+  }
+}

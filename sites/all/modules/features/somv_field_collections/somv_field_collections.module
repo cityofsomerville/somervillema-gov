@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Somerville Field Collections feature.
+ */
+
+include_once 'somv_field_collections.features.inc';
